@@ -4,25 +4,39 @@ param(
 )
 
 # Build the Maven command
-$testPath = if ($Module -and $Problem) {
-    "com.java.challenges.$Module.$Problem.**"
+$testPath = $null
+
+if ($Problem) {
+    # If problem starts with just a number, add 'p' prefix
+    if ($Problem -match '^\d+$') {
+        $Problem = "p" + $Problem.PadLeft(3, '0')
+    }
+    # If problem doesn't have wildcard and doesn't end with full name, add wildcard
+    if (-not $Problem.Contains('*') -and $Problem -match '^p\d+$') {
+        $Problem = $Problem + '_*'
+    }
+    
+    if ($Module) {
+        $testPath = "com.java.challenges.$Module.$Problem.**"
+    } else {
+        Write-Host "Error: Module is required when specifying a problem" -ForegroundColor Red
+        exit 1
+    }
 } elseif ($Module) {
-    "com.java.challenges.$Module.**"
-} else {
-    $null
+    $testPath = "com.java.challenges.$Module.**"
 }
 
 Write-Host ""
 Write-Host "Running Tests..." -ForegroundColor Cyan
 Write-Host ""
 
-# Run Maven (NOT quiet mode) and capture output
+# Run Maven and capture output
 $cmd = if ($testPath) { "mvn test -Dtest=`"$testPath`"" } else { "mvn test" }
 $output = Invoke-Expression $cmd 2>&1
 
-# Parse test results
-$passedTests = New-Object System.Collections.ArrayList
-$failedTests = New-Object System.Collections.ArrayList
+# Parse test results - use hashtable to avoid duplicates
+$passedTests = @{}
+$failedTests = @{}
 $totalTests = 0
 $totalFailures = 0
 $totalErrors = 0
@@ -46,16 +60,16 @@ foreach ($line in $output) {
         $totalFailures += $fails
         $totalErrors += $errs
         
-        if ($currentClass) {
-            [void]$failedTests.Add($currentClass)
+        if ($currentClass -and -not $failedTests.ContainsKey($currentClass)) {
+            $failedTests[$currentClass] = $true
         }
     }
-    elseif ($lineStr -match 'Tests run:\s+(\d+),\s+Failures:\s+0,\s+Errors:\s+0') {
+    elseif ($lineStr -match 'Tests run:\s+(\d+),\s+Failures:\s+0,\s+Errors:\s+0' -and $lineStr -notmatch '\[ERROR\]') {
         $runs = [int]$matches[1]
         $totalTests += $runs
         
-        if ($currentClass) {
-            [void]$passedTests.Add($currentClass)
+        if ($currentClass -and -not $passedTests.ContainsKey($currentClass)) {
+            $passedTests[$currentClass] = $true
         }
     }
 }
@@ -69,8 +83,8 @@ Write-Host ""
 if ($passedTests.Count -gt 0) {
     $passedMsg = "PASSED (" + $passedTests.Count + " problems):"
     Write-Host $passedMsg -ForegroundColor Green
-    foreach ($test in $passedTests) {
-        Write-Host "  + $test" -ForegroundColor Green
+    $passedTests.Keys | Sort-Object | ForEach-Object {
+        Write-Host "  + $_" -ForegroundColor Green
     }
     Write-Host ""
 }
@@ -79,8 +93,8 @@ if ($passedTests.Count -gt 0) {
 if ($failedTests.Count -gt 0) {
     $failedMsg = "FAILED (" + $failedTests.Count + " problems):"
     Write-Host $failedMsg -ForegroundColor Red
-    foreach ($test in $failedTests) {
-        Write-Host "  X $test" -ForegroundColor Red
+    $failedTests.Keys | Sort-Object | ForEach-Object {
+        Write-Host "  X $_" -ForegroundColor Red
     }
     Write-Host ""
 }

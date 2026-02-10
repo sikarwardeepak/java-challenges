@@ -55,6 +55,11 @@ mvn -q test -Dtest="com.java.challenges.arrays.**"
 # Or use the test.ps1 script for color-coded summary:
 ./test.ps1 -Module strings
 ./test.ps1 -Module strings -Problem p001_reversestring
+
+# Run by problem number only (automatically finds the problem):
+./test.ps1 -Module strings -Problem 1      # runs p001_reversestring
+./test.ps1 -Module strings -Problem 11     # runs p011_isomorphicstrings
+./test.ps1 -Module arrays -Problem 21      # runs p021_twosum
 ```
 
 **Maven Quiet Mode (`-q`):**
@@ -62,7 +67,10 @@ mvn -q test -Dtest="com.java.challenges.arrays.**"
 - Shows only test results and errors
 - Output: `Tests run: X, Failures: Y, Errors: Z, Skipped: W`
 
-The `test.ps1` script provides additional formatting with color-coded pass/fail indicators.
+**test.ps1 Script:**
+- Clean list of passed/failed problems (no duplicates)
+- Color-coded output (green for passed, red for failed)
+- Run by number: just use the problem number (1-100)
 
 ## 📋 Problem Index
 
