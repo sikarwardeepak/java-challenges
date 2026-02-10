@@ -32,23 +32,37 @@ p001_reversestring/
 1. Navigate to a problem's directory (e.g., `strings/p001_reversestring/`)
 2. Read `Problem.md` to understand the problem
 3. Open `Practice.java` and write your solution
-4. Run the test to verify: `mvn -Dtest="com.java.challenges.strings.p001_reversestring.PracticeTest" test`
+4. Run the test to verify: `mvn test -Dtest="com.java.challenges.strings.p001_reversestring.PracticeTest"`
 
 **💡 Tip:** Solve problems in sequential order (p001 → p100) for a structured learning path!
+
+The test output will show:
+- ✅ Each test that passes
+- ❌ Each test that fails with assertion details
+- 📊 Summary: `Tests run: X, Failures: Y, Errors: Z, Skipped: W`
 
 ### Run All Tests
 ```bash
 mvn test
 ```
 
-### Run Tests for a Specific Module
+### Run Tests with Clean Output (Recommended)
 ```bash
-mvn -Dtest="com.java.challenges.strings.**" test
-mvn -Dtest="com.java.challenges.arrays.**" test
-mvn -Dtest="com.java.challenges.collections.**" test
-mvn -Dtest="com.java.challenges.functional.**" test
-mvn -Dtest="com.java.challenges.machinecoding.**" test
+# Use -q (quiet) flag to reduce Maven logs:
+mvn -q test -Dtest="com.java.challenges.strings.**"
+mvn -q test -Dtest="com.java.challenges.arrays.**"
+
+# Or use the test.ps1 script for color-coded summary:
+./test.ps1 -Module strings
+./test.ps1 -Module strings -Problem p001_reversestring
 ```
+
+**Maven Quiet Mode (`-q`):**
+- Hides INFO logs and build progress
+- Shows only test results and errors
+- Output: `Tests run: X, Failures: Y, Errors: Z, Skipped: W`
+
+The `test.ps1` script provides additional formatting with color-coded pass/fail indicators.
 
 ## 📋 Problem Index
 
